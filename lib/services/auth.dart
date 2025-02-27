@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:payment_gateways_app/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-//AUTHENTICATE MODULE
+//AUTHENTICATE SERVICE
 
 abstract class AuthService {
   Future<User?> signIn({String? email, String? password});
@@ -83,14 +83,19 @@ class EmailAuthService implements AuthService {
   @override
   Future<User?> getCurrentUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     var email = prefs.getString("userEmail");
     var password = prefs.getString("password");
-    return User(
-      email: email,
-      password: password,
-      name: 'Demo Account',
-      phone: '0859144444',
-    );
+    if (email?.isNotEmpty == true) {
+      return User(
+        email: email,
+        password: password,
+        name: 'Demo Account',
+        phone: '0859144444',
+      );
+    } else {
+      return null;
+    }
 
     // Retrieve email authenticated user
   }

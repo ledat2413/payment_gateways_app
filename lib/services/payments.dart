@@ -1,44 +1,28 @@
-//PAYMENTS MODULE
+//PAYMENTS SERVICE
 
 abstract class PaymentGatewayService {
-  Future<bool?> initiatePayment(double amount);
-  Future<bool> verifyPayment(String transactionId);
+  Future<String?> pay(double amount);
 }
 
 class StripePayment implements PaymentGatewayService {
   @override
-  Future<bool?> initiatePayment(double amount) async {
+  Future<String?> pay(double amount) async {
     // Call Stripe API
     if (amount > 0) {
-      print("Pay $amount with Stripe Payment");
-      return true;
+      return "Pay $amount with Stripe Payment";
     } else {
-      return false;
+      return "Payment is not valid";
     }
-  }
-
-  @override
-  Future<bool> verifyPayment(String transactionId) async {
-    print('Verify Payment Success');
-    return true;
   }
 }
 
 class PayPalPayment implements PaymentGatewayService {
   @override
-  Future<bool?> initiatePayment(double amount) async {
+  Future<String?> pay(double amount) async {
     if (amount > 0) {
-      print("Pay $amount with Paypal Payment");
-      return true;
+      return "Pay $amount with Paypal Payment";
     } else {
-      return false;
+      return "Payment is not valid";
     }
-  }
-
-  @override
-  Future<bool> verifyPayment(String transactionId) async {
-    // Verify with PayPal API
-    print('Verify Payment Success');
-    return true;
   }
 }
