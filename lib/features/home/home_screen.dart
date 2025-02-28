@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:payment_gateways_app/features/login/login_screen.dart';
 import 'package:payment_gateways_app/providers/auth_provider.dart';
-import 'package:payment_gateways_app/services/auth.dart';
-import 'package:payment_gateways_app/services/payments.dart';
+import 'package:payment_gateways_app/services/auth/auth_service.dart';
+import 'package:payment_gateways_app/services/payment/payments.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/payment_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late PaymentProvider _paymentProvider;
+
   @override
   Widget build(BuildContext context) {
-    final paymentProvider = Provider.of<PaymentProvider>(context);
+     _paymentProvider = Provider.of<PaymentProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: Text('Home Screen')),
@@ -24,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                   () => _processPayment(
                     context,
                     PaymentGateway.paypal,
-                    paymentProvider,
+                    _paymentProvider,
                   ),
               child: Text('Pay with PayPal'),
             ),
@@ -33,18 +43,22 @@ class HomeScreen extends StatelessWidget {
                   () => _processPayment(
                     context,
                     PaymentGateway.stripe,
-                    paymentProvider,
+                    _paymentProvider,
                   ),
               child: Text('Pay with Stripe'),
             ),
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed:
-                  () =>
-                      Provider.of<AuthProvider>(
+                  () async {
+                     await Provider.of<AuthProvider>(
                         context,
                         listen: false,
-                      ).signOut(),
+                      ).signOut();
+                       Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                  },
+                    
               child: Text('Logout'),
             ),
           ],

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:payment_gateways_app/services/payments.dart';
+import 'package:payment_gateways_app/services/payment/payments.dart';
 
 enum PaymentGateway { paypal, stripe }
 
