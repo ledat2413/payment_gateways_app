@@ -42,12 +42,12 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final getCurrentUser = context.read<AuthProvider>().getCurrentUser();
     return MaterialApp(
       title: 'Payment App',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: FutureBuilder<UserModel?>(
-        future: authProvider.getCurrentUser(),
+        future: getCurrentUser,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();

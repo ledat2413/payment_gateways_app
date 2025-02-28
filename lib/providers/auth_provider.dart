@@ -9,6 +9,11 @@ enum AuthenticateType { email, google, facebook,firebase }
 
 class AuthProvider with ChangeNotifier {
   AuthService? _authService;
+  UserModel? user;
+
+  bool? isRegistered;
+    bool? isLogin;
+
 
   void selectAuth(AuthenticateType service) {
     if (service == AuthenticateType.email) {
@@ -24,21 +29,23 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<UserModel?> signIn({String? email, String? password}) async {
-    return await _authService?.signIn(email: email, password: password);
+  Future<void> signIn({String? email, String? password}) async {
+  isLogin = await _authService?.signIn(email: email, password: password);
+  notifyListeners();
   }
 
   Future<void> signOut() async {
     await _authService?.signOut();
   }
 
-  Future<UserModel?> register({required String email,required String password }) async {
-    return await _authService?.register(email: email, password: password);
+  Future<void> register({required String email,required String password }) async {
+   isRegistered = await _authService?.register(email: email, password: password);
+    notifyListeners();
   }
 
   Future<UserModel?> getCurrentUser() async {
-    return await _authService?.getCurrentUser();
+   var user = await _authService?.getCurrentUser();
+    notifyListeners();
+    return user;
   }
-
-
 }

@@ -16,23 +16,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  late AuthProvider authProvider; 
-    late BuildContext _context;
-
-
-  @override
-void didChangeDependencies() {
-  super.didChangeDependencies();
-  
-  // Use dependOnInheritedWidgetOfExactType to safely access inherited widgets
-   _context = context;
-  // Use the `theme` or any context-related operation here
-}
 
 @override
   Widget build(BuildContext context) {
-    authProvider = Provider.of<AuthProvider>(context);
-
     return Scaffold(
       appBar: AppBar(title: Text('Login')),
       body: Padding(
@@ -52,7 +38,7 @@ void didChangeDependencies() {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed:
-                  () => _login(context, AuthenticateType.email, authProvider),
+                  () => _login(context, AuthenticateType.email),
               child: Text('Login'),
             ),
             SizedBox(height: 20),
@@ -61,7 +47,7 @@ void didChangeDependencies() {
                  Expanded(
                    child: ElevatedButton(
                     onPressed:
-                        () => _login(context, AuthenticateType.firebase, authProvider),
+                        () => _login(context, AuthenticateType.firebase),
                     child: Text('Login with Firebase'),
                                ),
                  ),
@@ -69,7 +55,7 @@ void didChangeDependencies() {
                    Expanded(
                      child: ElevatedButton(
                                        onPressed:
-                        () => _register(AuthenticateType.firebase, authProvider),
+                        () => _register(context,AuthenticateType.firebase),
                                        child: Text('Register with Firebase'),
                                ),
                    ),           
@@ -79,13 +65,13 @@ void didChangeDependencies() {
 
             ElevatedButton(
               onPressed:
-                  () => _login(context, AuthenticateType.google, authProvider),
+                  () => _login(context, AuthenticateType.google),
               child: Text('Login with Google'),
             ),
             ElevatedButton(
               onPressed:
                   () =>
-                      _login(context, AuthenticateType.facebook, authProvider),
+                      _login(context, AuthenticateType.facebook),
               child: Text('Login with Facebook'),
             ),
           ],
@@ -96,65 +82,73 @@ void didChangeDependencies() {
 
   @override
   void dispose() {
+    _passwordController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
 
   void _register(
-  
+    BuildContext loginContext,
     AuthenticateType service,
-    AuthProvider? provider,
   ) async {
     if (service == AuthenticateType.firebase) {
-      provider?.selectAuth(service);
-      var result = await provider?.register(email: _emailController.text, password: _passwordController.text);
-      if (result != null){
-          ScaffoldMessenger.of(_context).showSnackBar(SnackBar(content: Text('Registration Successful!')));
-
+      final authProvider =  Provider.of<AuthProvider>(context, listen: false);
+      authProvider.selectAuth(service);
+      await authProvider.register(email: _emailController.text, password: _passwordController.text);
+      var result = authProvider.isRegistered;
+      if (result == true ){
+        ScaffoldMessenger.of(loginContext).showSnackBar(SnackBar(content: Text('Register Success!')));
+         Navigator.pushAndRemoveUntil(
+          loginContext,
+          MaterialPageRoute(builder: (context) => HomeScreen()), (Route<dynamic> route) => false,);
       }else {
-          ScaffoldMessenger.of(_context).showSnackBar(SnackBar(content: Text('Registration Failed')));
-
+          ScaffoldMessenger.of(loginContext).showSnackBar(SnackBar(content: Text('Register Failed!')));
       }
     }
   }  
 
   void _login(
-    BuildContext context,
+    BuildContext loginContext,
     AuthenticateType service,
-    AuthProvider? provider,
   ) async {
+      final authProvider =  Provider.of<AuthProvider>(context, listen: false);
+
     if (service == AuthenticateType.email) {
-      provider?.selectAuth(AuthenticateType.email);
-      var result = await provider?.signIn(
+
+      authProvider.selectAuth(AuthenticateType.email);
+      await authProvider.signIn(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      if (result != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+       var result = authProvider.isLogin;
+      if (result != false) {
+       Navigator.pushAndRemoveUntil(
+          loginContext,
+          MaterialPageRoute(builder: (context) => HomeScreen()), (Route<dynamic> route) => false,
         );
       }else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login Failed!')));
+          ScaffoldMessenger.of(loginContext).showSnackBar(SnackBar(content: Text('Login Failed!')));
       }
     } else if (service == AuthenticateType.facebook) {
-      provider?.selectAuth(AuthenticateType.facebook);
-      provider?.signIn();
+      authProvider.selectAuth(AuthenticateType.facebook);
+      authProvider.signIn();
     } else if (service == AuthenticateType.google) {
-      provider?.selectAuth(AuthenticateType.google);
-      provider?.signIn();
+      authProvider.selectAuth(AuthenticateType.google);
+      authProvider.signIn();
     }else if (service == AuthenticateType.firebase){
-        provider?.selectAuth(AuthenticateType.firebase);
-        var result = await provider?.signIn(
+        authProvider.selectAuth(AuthenticateType.firebase);
+        await authProvider.signIn(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      if (result == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login with Firebase Failed!')));
+      var result = authProvider.isLogin;
+      if (result == false) {
+        ScaffoldMessenger.of(loginContext).showSnackBar(SnackBar(content: Text('Login with Firebase has Failed!')));
       }else {
-         Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+        Navigator.pushAndRemoveUntil(
+          loginContext,
+          MaterialPageRoute(builder: (context) => HomeScreen()), (Route<dynamic> route) => false,
         );
       }
     }

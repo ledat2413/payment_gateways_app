@@ -20,32 +20,32 @@ class FirebaseAuthService implements AuthService{
   }
 
   @override
-  Future<UserModel?> signIn({String? email, String? password})async {
+  Future<bool> signIn({String? email, String? password})async {
      try {
       final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email ?? '',
         password: password ?? '',
       );
       print("User signed in: ${userCredential.user?.email}");
-      return UserModel(email: email,name: userCredential.user?.email ?? '',);
+      return true;
     } catch (e) {
       print("Login failed: $e");
-      return UserModel();
+      return false;
     }
   }
 
    @override
-  Future<UserModel?> register({required String email,required String password}) async {
+  Future<bool> register({required String email,required String password}) async {
     try {
       final UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password:password,
       );
       print("User registered: ${userCredential.user?.email}");
-      return  UserModel(email: email,name:userCredential.user?.displayName);
+      return  true;
     } catch (e) {
       print("Registration failed: $e");
-      return UserModel();
+      return false;
     }
   }
 
